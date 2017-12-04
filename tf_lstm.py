@@ -24,6 +24,7 @@ class SentimentModel(object):
         self.num_steps = num_steps = config.num_steps
         size = config.hidden_size
         vocab_size = config.vocab_size
+        n_classes = config.n_classes
 
         self.input_data = tf.placeholder(tf.int32, [num_steps, batch_size], name="inputs")
         self.mask = tf.placeholder(tf.float32, [num_steps, batch_size], name="mask")
@@ -63,8 +64,8 @@ class SentimentModel(object):
         proj = tf.reduce_sum(outputs, 0)/mask_sum
         #NOW proj has shape [batch_size, size]
 
-        softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
-        softmax_b = tf.get_variable("softmax_b", [vocab_size])
+        softmax_w = tf.get_variable("softmax_w", [size, n_classes])
+        softmax_b = tf.get_variable("softmax_b", [n_classes])
         logits = tf.matmul(proj, softmax_w) + softmax_b
         pred = tf.nn.softmax(logits)
         loss = tf.nn.sparse_softmax_cross_entropy_with_logits(logits, labels) 
@@ -94,6 +95,7 @@ class Config(object):
     decay_c=0.  # Weight decay for the classifier applied to the U weights.
     lrate=0.0001  # Learning rate for sgd (not used for adadelta and rmsprop)
     vocab_size=10000  # Vocabulary size
+    n_classes=2 # Binary class for Negative review or Positive review
     encoder='lstm'  # TODO: can be removed must be lstm.
     saveto='lstm_model.npz',  # The best model will be saved there
     validFreq=370  # Compute the validation error after this number of update.
